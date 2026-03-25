@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Course } from '@/types'
 import { courseService } from '@/lib/database'
+import TeacherAIAssistant from '@/components/TeacherAIAssistant'
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<any>(null)
@@ -147,6 +148,9 @@ export default function TeacherDashboard() {
           </div>
         </main>
       </div>
+
+      {/* AI助手 */}
+      <TeacherAIAssistant currentPage="dashboard" />
     </div>
   )
 }

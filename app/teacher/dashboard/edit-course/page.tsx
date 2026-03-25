@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Course, Module, Task, Resource } from '@/types'
 import { courseService, moduleService, taskService } from '@/lib/database'
+import TeacherAIAssistant from '@/components/TeacherAIAssistant'
 
 // 模拟课程数据
 const mockCourse: Course = {
@@ -556,6 +557,9 @@ export default function EditCoursePage() {
           </div>
         </main>
       </div>
+
+      {/* AI助手 */}
+      <TeacherAIAssistant currentPage="edit-course" />
     </div>
   )
 }

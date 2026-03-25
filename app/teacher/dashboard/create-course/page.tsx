@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Course, Module, Task } from '@/types'
 import { courseService, moduleService, taskService } from '@/lib/database'
+import TeacherAIAssistant from '@/components/TeacherAIAssistant'
 
 export default function CreateCoursePage() {
   const router = useRouter()
@@ -439,6 +440,9 @@ export default function CreateCoursePage() {
           </div>
         </main>
       </div>
+
+      {/* AI助手 */}
+      <TeacherAIAssistant currentPage="create-course" />
     </div>
   )
 }
