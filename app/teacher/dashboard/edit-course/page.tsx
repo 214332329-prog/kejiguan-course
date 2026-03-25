@@ -197,187 +197,209 @@ export default function EditCoursePage() {
         </div>
       </header>
 
-      {/* 主内容区 */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 课程基本信息 */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">课程基本信息</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">课程标题</label>
-              <input
-                type="text"
-                value={course.title}
-                onChange={(e) => handleCourseUpdate('title', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">总时长</label>
-              <input
-                type="text"
-                value={course.totalDuration}
-                onChange={(e) => handleCourseUpdate('totalDuration', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">课程描述</label>
-              <textarea
-                value={course.description}
-                onChange={(e) => handleCourseUpdate('description', e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-        </div>
+      {/* 侧边导航 */}
+      <div className="flex">
+        <aside className="w-64 bg-white shadow-sm">
+          <nav className="mt-5 px-2 space-y-1">
+            <a
+              href="/teacher/dashboard"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            >
+              课程管理
+            </a>
+            <a
+              href="/teacher/analytics"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            >
+              数据分析
+            </a>
+          </nav>
+        </aside>
 
-        {/* 课程模块和任务 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 左侧模块列表 */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">课程模块</h2>
-                <button
-                  onClick={handleAddModule}
-                  className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600"
-                >
-                  添加模块
-                </button>
-              </div>
-              <div className="space-y-2">
-                {course.modules.map((module) => (
-                  <div
-                    key={module.id}
-                    className={`p-3 rounded-md cursor-pointer transition-colors ${activeModuleId === module.id ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
-                    onClick={() => setActiveModuleId(module.id)}
-                  >
-                    <h3 className="font-medium text-gray-900">{module.title}</h3>
-                    <p className="text-sm text-gray-600">{module.tasks.length} 个任务</p>
-                  </div>
-                ))}
+        {/* 主内容区 */}
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* 课程基本信息 */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">课程基本信息</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">课程标题</label>
+                  <input
+                    type="text"
+                    value={course.title}
+                    onChange={(e) => handleCourseUpdate('title', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">总时长</label>
+                  <input
+                    type="text"
+                    value={course.totalDuration}
+                    onChange={(e) => handleCourseUpdate('totalDuration', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">课程描述</label>
+                  <textarea
+                    value={course.description}
+                    onChange={(e) => handleCourseUpdate('description', e.target.value)}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 右侧模块和任务编辑 */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              {course.modules.map((module) => (
-                <div key={module.id} className={activeModuleId === module.id ? '' : 'hidden'}>
-                  <div className="mb-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">模块信息</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">模块标题</label>
-                        <input
-                          type="text"
-                          value={module.title}
-                          onChange={(e) => handleModuleUpdate(module.id, 'title', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">模块图标</label>
-                        <input
-                          type="text"
-                          value={module.icon || ''}
-                          onChange={(e) => handleModuleUpdate(module.id, 'icon', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="例如: book"
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">模块描述</label>
-                        <textarea
-                          value={module.description || ''}
-                          onChange={(e) => handleModuleUpdate(module.id, 'description', e.target.value)}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
+            {/* 课程模块和任务 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* 左侧模块列表 */}
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">课程模块</h2>
+                    <button
+                      onClick={handleAddModule}
+                      className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600"
+                    >
+                      添加模块
+                    </button>
                   </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-lg font-semibold text-gray-900">任务列表</h2>
-                      <button
-                        onClick={() => handleAddTask(module.id)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600"
+                  <div className="space-y-2">
+                    {course.modules.map((module) => (
+                      <div
+                        key={module.id}
+                        className={`p-3 rounded-md cursor-pointer transition-colors ${activeModuleId === module.id ? 'bg-blue-100' : 'hover:bg-gray-100'}`}
+                        onClick={() => setActiveModuleId(module.id)}
                       >
-                        添加任务
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {module.tasks.map((task) => (
-                        <div key={task.id} className="border border-gray-200 rounded-md p-4">
-                          <div className="flex justify-between items-start mb-3">
-                            <h3 className="font-medium text-gray-900">{task.title}</h3>
-                            <div className="flex space-x-2">
-                              <button className="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">
-                                编辑
-                              </button>
-                              <button className="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">
-                                删除
-                              </button>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">任务状态</label>
-                              <select
-                                value={task.status}
-                                onChange={(e) => handleTaskUpdate(module.id, task.id, 'status', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              >
-                                <option value="pending">待开始</option>
-                                <option value="ongoing">进行中</option>
-                                <option value="completed">已完成</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">任务时长</label>
-                              <input
-                                type="text"
-                                value={task.duration || ''}
-                                onChange={(e) => handleTaskUpdate(module.id, task.id, 'duration', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="例如: 45分钟"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">任务内容</label>
-                              <textarea
-                                value={task.content || ''}
-                                onChange={(e) => handleTaskUpdate(module.id, task.id, 'content', e.target.value)}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">任务要求</label>
-                              <textarea
-                                value={task.requirements?.join('\n') || ''}
-                                onChange={(e) => handleTaskUpdate(module.id, task.id, 'requirements', e.target.value.split('\n'))}
-                                rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="每行一个要求"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        <h3 className="font-medium text-gray-900">{module.title}</h3>
+                        <p className="text-sm text-gray-600">{module.tasks.length} 个任务</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* 右侧模块和任务编辑 */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  {course.modules.map((module) => (
+                    <div key={module.id} className={activeModuleId === module.id ? '' : 'hidden'}>
+                      <div className="mb-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">模块信息</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">模块标题</label>
+                            <input
+                              type="text"
+                              value={module.title}
+                              onChange={(e) => handleModuleUpdate(module.id, 'title', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">模块图标</label>
+                            <input
+                              type="text"
+                              value={module.icon || ''}
+                              onChange={(e) => handleModuleUpdate(module.id, 'icon', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="例如: book"
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">模块描述</label>
+                            <textarea
+                              value={module.description || ''}
+                              onChange={(e) => handleModuleUpdate(module.id, 'description', e.target.value)}
+                              rows={3}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-lg font-semibold text-gray-900">任务列表</h2>
+                          <button
+                            onClick={() => handleAddTask(module.id)}
+                            className="px-3 py-1 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600"
+                          >
+                            添加任务
+                          </button>
+                        </div>
+                        <div className="space-y-4">
+                          {module.tasks.map((task) => (
+                            <div key={task.id} className="border border-gray-200 rounded-md p-4">
+                              <div className="flex justify-between items-start mb-3">
+                                <h3 className="font-medium text-gray-900">{task.title}</h3>
+                                <div className="flex space-x-2">
+                                  <button className="px-2 py-1 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600">
+                                    编辑
+                                  </button>
+                                  <button className="px-2 py-1 bg-red-500 text-white rounded-md text-xs hover:bg-red-600">
+                                    删除
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">任务状态</label>
+                                  <select
+                                    value={task.status}
+                                    onChange={(e) => handleTaskUpdate(module.id, task.id, 'status', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  >
+                                    <option value="pending">待开始</option>
+                                    <option value="ongoing">进行中</option>
+                                    <option value="completed">已完成</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">任务时长</label>
+                                  <input
+                                    type="text"
+                                    value={task.duration || ''}
+                                    onChange={(e) => handleTaskUpdate(module.id, task.id, 'duration', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="例如: 45分钟"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">任务内容</label>
+                                  <textarea
+                                    value={task.content || ''}
+                                    onChange={(e) => handleTaskUpdate(module.id, task.id, 'content', e.target.value)}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div className="md:col-span-2">
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">任务要求</label>
+                                  <textarea
+                                    value={task.requirements?.join('\n') || ''}
+                                    onChange={(e) => handleTaskUpdate(module.id, task.id, 'requirements', e.target.value.split('\n'))}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="每行一个要求"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

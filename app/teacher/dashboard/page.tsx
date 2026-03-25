@@ -89,49 +89,71 @@ export default function TeacherDashboard() {
         </div>
       </header>
 
-      {/* 主内容区 */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 页面标题和操作按钮 */}
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900">我的课程</h2>
-          <button
-            onClick={handleCreateCourse}
-            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-          >
-            创建新课程
-          </button>
-        </div>
+      {/* 侧边导航 */}
+      <div className="flex">
+        <aside className="w-64 bg-white shadow-sm">
+          <nav className="mt-5 px-2 space-y-1">
+            <a
+              href="/teacher/dashboard"
+              className="block px-3 py-2 rounded-md text-base font-medium bg-blue-50 text-blue-700"
+            >
+              课程管理
+            </a>
+            <a
+              href="/teacher/analytics"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            >
+              数据分析
+            </a>
+          </nav>
+        </aside>
 
-        {/* 课程列表 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <div key={course.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEditCourse(course.id)}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm hover:bg-yellow-600"
-                  >
-                    编辑
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCourse(course.id)}
-                    className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600"
-                  >
-                    删除
-                  </button>
-                </div>
-              </div>
-              <p className="text-gray-600 mb-4">{course.description}</p>
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>总时长: {course.totalDuration}</span>
-                <span>任务数: {course.totalTasks}</span>
-              </div>
+        {/* 主内容区 */}
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* 页面标题和操作按钮 */}
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-semibold text-gray-900">我的课程</h2>
+              <button
+                onClick={handleCreateCourse}
+                className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              >
+                创建新课程
+              </button>
             </div>
-          ))}
-        </div>
-      </main>
+
+            {/* 课程列表 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
+                <div key={course.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditCourse(course.id)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm hover:bg-yellow-600"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCourse(course.id)}
+                        className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-4">{course.description}</p>
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>总时长: {course.totalDuration}</span>
+                    <span>任务数: {course.totalTasks}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
