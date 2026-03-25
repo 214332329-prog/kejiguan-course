@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [userType, setUserType] = useState<'student' | 'teacher'>('student')
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -24,7 +25,12 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/workspace')
+      // 根据用户类型跳转到不同页面
+      if (userType === 'teacher') {
+        router.push('/teacher/dashboard')
+      } else {
+        router.push('/workspace')
+      }
     }
 
     setLoading(false)
@@ -36,6 +42,25 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           科技馆课程平台
         </h1>
+        
+        {/* 用户类型切换 */}
+        <div className="flex mb-6 border border-gray-200 rounded-md overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setUserType('student')}
+            className={`flex-1 py-2 text-center ${userType === 'student' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+          >
+            学生登录
+          </button>
+          <button
+            type="button"
+            onClick={() => setUserType('teacher')}
+            className={`flex-1 py-2 text-center ${userType === 'teacher' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+          >
+            教师登录
+          </button>
+        </div>
+        
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
             <div className="p-3 bg-red-50 text-red-600 rounded-md text-sm">
