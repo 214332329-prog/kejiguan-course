@@ -47,12 +47,20 @@ export default function TeacherDashboard() {
 
   const handleCreateCourse = () => {
     // 跳转到课程创建页面
-    console.log('创建新课程')
+    router.push('/teacher/dashboard/create-course')
   }
 
   const handleEditCourse = (courseId: string) => {
     // 跳转到课程编辑页面
-    console.log('编辑课程:', courseId)
+    router.push(`/teacher/dashboard/edit-course?id=${courseId}`)
+  }
+
+  const handleDeleteCourse = (courseId: string) => {
+    // 删除课程
+    if (confirm('确定要删除这门课程吗？')) {
+      setCourses(prev => prev.filter(course => course.id !== courseId))
+      console.log('删除课程:', courseId)
+    }
   }
 
   if (loading) {
@@ -107,7 +115,10 @@ export default function TeacherDashboard() {
                   >
                     编辑
                   </button>
-                  <button className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600">
+                  <button
+                    onClick={() => handleDeleteCourse(course.id)}
+                    className="px-3 py-1 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600"
+                  >
                     删除
                   </button>
                 </div>
