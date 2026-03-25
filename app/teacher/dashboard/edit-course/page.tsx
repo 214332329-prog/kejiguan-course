@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Course, Module, Task, Resource } from '@/types'
+import { courseService, moduleService, taskService } from '@/lib/database'
 
 // 模拟课程数据
 const mockCourse: Course = {
@@ -86,9 +87,51 @@ export default function EditCoursePage() {
   const params = useParams()
   const courseId = params.id as string
   
-  const [course, setCourse] = useState<Course>(mockCourse)
-  const [activeModuleId, setActiveModuleId] = useState<string>(mockCourse.modules[0].id)
+  const [course, setCourse] = useState<Course>({
+    id: courseId,
+    title: '',
+    description: '',
+    modules: [],
+    totalDuration: '',
+    totalTasks: 0
+  })
+  const [activeModuleId, setActiveModuleId] = useState<string>('')
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchCourseData()
+  }, [courseId])
+
+  const fetchCourseData = async () => {
+    setLoading(true)
+    const courseData = await courseService.getCourse(courseId)
+    if (courseData) {
+      // 获取课程的模块
+      const modules = await moduleService.getModulesByCourseId(courseId)
+      
+      // 为每个模块获取任务
+      const modulesWithTasks = await Promise.all(
+        modules.map(async (module) => {
+          const tasks = await taskService.getTasksByModuleId(module.id)
+          return {
+            ...module,
+            tasks
+          }
+        })
+      )
+      
+      setCourse({
+        ...courseData,
+        modules: modulesWithTasks
+      })
+      
+      if (modulesWithTasks.length > 0) {
+        setActiveModuleId(modulesWithTasks[0].id)
+      }
+    }
+    setLoading(false)
+  }
 
   // 处理课程信息更新
   const handleCourseUpdate = (field: keyof Course, value: string) => {
@@ -164,10 +207,77 @@ export default function EditCoursePage() {
   }
 
   // 保存课程
-  const handleSaveCourse = () => {
-    console.log('保存课程:', course)
-    // 这里可以添加保存到数据库的逻辑
-    router.push('/teacher/dashboard')
+  const handleSaveCourse = async () => {
+    // 更新课程基本信息
+    const updatedCourse = await courseService.updateCourse(course.id, {
+      title: course.title,
+      description: course.description,
+      totalDuration: course.totalDuration,
+      totalTasks: course.modules.reduce((total, module) => total + module.tasks.length, 0)
+    })
+    
+    if (updatedCourse) {
+      // 更新模块和任务
+      for (const module of course.modules) {
+        if (module.id) {
+          // 更新现有模块
+          await moduleService.updateModule(module.id, {
+            title: module.title,
+            description: module.description,
+            icon: module.icon
+          })
+          
+          // 更新或创建任务
+          for (const task of module.tasks) {
+            if (task.id) {
+              // 更新现有任务
+              await taskService.updateTask(task.id, {
+                title: task.title,
+                status: task.status,
+                duration: task.duration,
+                content: task.content
+              })
+            } else {
+              // 创建新任务
+              await taskService.createTask({
+                module_id: module.id,
+                title: task.title,
+                status: task.status,
+                duration: task.duration,
+                content: task.content
+              })
+            }
+          }
+        } else {
+          // 创建新模块
+          const savedModule = await moduleService.createModule({
+            course_id: course.id,
+            title: module.title,
+            description: module.description,
+            icon: module.icon
+          })
+          
+          if (savedModule) {
+            // 创建模块的任务
+            for (const task of module.tasks) {
+              await taskService.createTask({
+                module_id: savedModule.id,
+                title: task.title,
+                status: task.status,
+                duration: task.duration,
+                content: task.content
+              })
+            }
+          }
+        }
+      }
+      
+      console.log('课程保存成功:', updatedCourse)
+      router.push('/teacher/dashboard')
+    } else {
+      console.error('课程保存失败')
+      alert('课程保存失败，请重试')
+    }
   }
 
   return (

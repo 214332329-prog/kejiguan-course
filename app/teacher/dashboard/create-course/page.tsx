@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Course, Module, Task } from '@/types'
+import { courseService, moduleService, taskService } from '@/lib/database'
 
 export default function CreateCoursePage() {
   const router = useRouter()
@@ -96,14 +97,50 @@ export default function CreateCoursePage() {
   }
 
   // 保存课程
-  const handleSaveCourse = () => {
+  const handleSaveCourse = async () => {
     const updatedCourse = {
       ...course,
       totalTasks: calculateTotalTasks()
     }
-    console.log('创建新课程:', updatedCourse)
-    // 这里可以添加保存到数据库的逻辑
-    router.push('/teacher/dashboard')
+    
+    // 保存课程到数据库
+    const savedCourse = await courseService.createCourse({
+      title: updatedCourse.title,
+      description: updatedCourse.description,
+      totalDuration: updatedCourse.totalDuration,
+      totalTasks: updatedCourse.totalTasks
+    })
+    
+    if (savedCourse) {
+      // 保存模块
+      for (const module of updatedCourse.modules) {
+        const savedModule = await moduleService.createModule({
+          course_id: savedCourse.id,
+          title: module.title,
+          description: module.description,
+          icon: module.icon
+        })
+        
+        if (savedModule) {
+          // 保存任务
+          for (const task of module.tasks) {
+            await taskService.createTask({
+              module_id: savedModule.id,
+              title: task.title,
+              status: task.status,
+              duration: task.duration,
+              content: task.content
+            })
+          }
+        }
+      }
+      
+      console.log('课程创建成功:', savedCourse)
+      router.push('/teacher/dashboard')
+    } else {
+      console.error('课程创建失败')
+      alert('课程创建失败，请重试')
+    }
   }
 
   return (

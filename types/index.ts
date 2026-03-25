@@ -7,6 +7,9 @@ export interface Task {
   videoUrl?: string
   requirements?: string[]
   resources?: Resource[]
+  module_id?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface Module {
@@ -15,6 +18,9 @@ export interface Module {
   icon?: string
   description?: string
   tasks: Task[]
+  course_id?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface Resource {
@@ -66,4 +72,6 @@ export interface Course {
   modules: Module[]
   totalDuration: string
   totalTasks: number
+  created_at?: string
+  updated_at?: string
 }

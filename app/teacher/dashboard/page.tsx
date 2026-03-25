@@ -4,35 +4,17 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Course } from '@/types'
-
-// 模拟课程数据
-const mockCourses: Course[] = [
-  {
-    id: '1',
-    title: '调研方法入门',
-    description: '学习基本的调研方法和技巧',
-    modules: [],
-    totalDuration: '3小时',
-    totalTasks: 6
-  },
-  {
-    id: '2',
-    title: '实地考察实践',
-    description: '通过实地考察学习调研方法',
-    modules: [],
-    totalDuration: '4小时',
-    totalTasks: 8
-  }
-]
+import { courseService } from '@/lib/database'
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<any>(null)
-  const [courses, setCourses] = useState<Course[]>(mockCourses)
+  const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     checkUser()
+    fetchCourses()
   }, [])
 
   const checkUser = async () => {
@@ -42,6 +24,12 @@ export default function TeacherDashboard() {
     } else {
       router.push('/auth/login')
     }
+  }
+
+  const fetchCourses = async () => {
+    setLoading(true)
+    const coursesData = await courseService.getCourses()
+    setCourses(coursesData)
     setLoading(false)
   }
 
@@ -55,11 +43,16 @@ export default function TeacherDashboard() {
     router.push(`/teacher/dashboard/edit-course?id=${courseId}`)
   }
 
-  const handleDeleteCourse = (courseId: string) => {
+  const handleDeleteCourse = async (courseId: string) => {
     // 删除课程
     if (confirm('确定要删除这门课程吗？')) {
-      setCourses(prev => prev.filter(course => course.id !== courseId))
-      console.log('删除课程:', courseId)
+      const success = await courseService.deleteCourse(courseId)
+      if (success) {
+        setCourses(prev => prev.filter(course => course.id !== courseId))
+        console.log('删除课程成功:', courseId)
+      } else {
+        alert('删除课程失败，请重试')
+      }
     }
   }
 
