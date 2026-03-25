@@ -5,7 +5,7 @@ import { Task, Module, Message } from '@/types'
 
 interface CenterPanelProps {
   selectedTask?: Task | null
-  currentModule?: Module
+  currentModule?: Module | null
   user?: any
 }
 
