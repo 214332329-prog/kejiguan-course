@@ -3,6 +3,54 @@
 import { useState, useRef, useEffect } from 'react'
 import { Task, Module, Message } from '@/types'
 
+// 模拟OpenAI API调用
+const mockOpenAICall = async (prompt: string, taskContext: string): Promise<string> => {
+  // 模拟API调用延迟
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  
+  // 根据任务内容生成针对性回复
+  if (taskContext.includes('调研方法')) {
+    return `关于调研方法，我建议你：
+
+1. 首先明确调研目标，确定你想要了解的具体问题
+2. 选择合适的调研方法，如问卷、访谈、观察等
+3. 设计调研工具，如问卷问题、访谈提纲
+4. 收集数据并进行分析
+5. 撰写调研报告，总结发现和建议
+
+如果需要更具体的帮助，请告诉我你的具体问题。`
+  } else if (taskContext.includes('实地考察')) {
+    return `关于实地考察，我建议你：
+
+1. 提前准备观察记录表，明确观察要点
+2. 选择2-3个重点展品进行深度观察
+3. 记录展品的外观、交互方式、展示内容
+4. 观察观众的反应和互动情况
+5. 拍摄照片作为参考资料
+
+需要更多实地考察的技巧吗？`
+  } else if (taskContext.includes('创新设计')) {
+    return `关于创新设计，我建议你：
+
+1. 整理前期调研发现的问题和用户痛点
+2. 进行头脑风暴，提出多个解决方案
+3. 评估每个方案的可行性和创新性
+4. 绘制设计草图，明确设计细节
+5. 撰写完整的设计方案
+
+需要我帮你 brainstorm一些创新点子吗？`
+  } else {
+    return `我理解你的问题。关于这个主题，我建议你：
+
+1. 仔细阅读任务要求和学习材料
+2. 参考课程提供的资源和示例
+3. 按照任务步骤逐步完成
+4. 如有具体问题，随时向我咨询
+
+你还有其他需要了解的方面吗？`
+  }
+}
+
 interface CenterPanelProps {
   selectedTask?: Task | null
   currentModule?: Module | null
@@ -49,7 +97,7 @@ export default function CenterPanel({ selectedTask = null, currentModule, user }
     setActiveTab('content')
   }, [selectedTask?.id])
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return
 
     const userMessage: Message = {
@@ -63,17 +111,27 @@ export default function CenterPanel({ selectedTask = null, currentModule, user }
     setInputMessage('')
 
     // 模拟AI回复
-    setTimeout(() => {
+    try {
+      const taskContext = selectedTask?.content || ''
+      const aiResponse = await mockOpenAICall(inputMessage, taskContext)
+      
       const aiReply: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: selectedTask
-          ? `关于"${selectedTask.title}"，我建议你可以从以下几个方面入手：\n\n1. 仔细阅读任务要求\n2. 参考右侧的提交标准\n3. 有需要随时问我`
-          : '收到你的问题！我会尽快为你解答。',
+        content: aiResponse,
         timestamp: new Date().toISOString(),
       }
       setMessages((prev) => [...prev, aiReply])
-    }, 1000)
+    } catch (error) {
+      console.error('AI response error:', error)
+      const errorReply: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: '抱歉，我暂时无法回答你的问题，请稍后再试。',
+        timestamp: new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, errorReply])
+    }
   }
 
   const handleQuickQuestion = (question: string) => {
@@ -99,17 +157,23 @@ export default function CenterPanel({ selectedTask = null, currentModule, user }
 
     setSubmitting(true)
 
-    // 模拟提交过程
-    setTimeout(() => {
+    try {
+      // 模拟提交过程
+      setTimeout(() => {
+        setSubmitting(false)
+        setSubmitSuccess(true)
+        // 3秒后重置成功状态
+        setTimeout(() => setSubmitSuccess(false), 3000)
+      }, 1500)
+    } catch (error) {
       setSubmitting(false)
-      setSubmitSuccess(true)
-      // 3秒后重置成功状态
-      setTimeout(() => setSubmitSuccess(false), 3000)
-    }, 1500)
+      alert('提交失败，请重试')
+      console.error('Task submission error:', error)
+    }
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white h-full min-w-0">
+    <div className="flex-1 flex flex-col bg-white h-full min-w-0 md:min-w-[300px]">
       {/* 学习中心 */}
       <div className="flex-[1.5] flex flex-col min-h-0 overflow-hidden">
         {selectedTask ? (

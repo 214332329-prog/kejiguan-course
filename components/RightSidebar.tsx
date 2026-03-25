@@ -39,7 +39,7 @@ export default function RightSidebar({ selectedTask = null, completedTasks = 0, 
   ]
 
   return (
-    <aside className="w-80 bg-slate-50 border-l border-slate-200 flex flex-col h-full shrink-0 overflow-y-auto">
+    <aside className="w-80 lg:w-72 bg-slate-50 border-l border-slate-200 flex flex-col h-full shrink-0 overflow-y-auto hidden lg:flex">
       <div className="p-4 space-y-4">
         {/* 倒计时卡片 */}
         <div className="bg-white rounded-xl p-5 border border-slate-200 text-center">

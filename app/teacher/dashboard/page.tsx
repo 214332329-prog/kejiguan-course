@@ -84,7 +84,7 @@ export default function TeacherDashboard() {
 
       {/* 侧边导航 */}
       <div className="flex">
-        <aside className="w-64 bg-white shadow-sm">
+        <aside className="w-64 md:w-56 bg-white shadow-sm hidden md:block">
           <nav className="mt-5 px-2 space-y-1">
             <a
               href="/teacher/dashboard"

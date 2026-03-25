@@ -96,50 +96,72 @@ export default function CreateCoursePage() {
     return course.modules.reduce((total, module) => total + module.tasks.length, 0)
   }
 
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
   // 保存课程
   const handleSaveCourse = async () => {
-    const updatedCourse = {
-      ...course,
-      totalTasks: calculateTotalTasks()
+    // 验证表单
+    if (!course.title.trim()) {
+      alert('请输入课程标题')
+      return
     }
+
+    setSaving(true)
     
-    // 保存课程到数据库
-    const savedCourse = await courseService.createCourse({
-      title: updatedCourse.title,
-      description: updatedCourse.description,
-      totalDuration: updatedCourse.totalDuration,
-      totalTasks: updatedCourse.totalTasks
-    })
-    
-    if (savedCourse) {
-      // 保存模块
-      for (const module of updatedCourse.modules) {
-        const savedModule = await moduleService.createModule({
-          course_id: savedCourse.id,
-          title: module.title,
-          description: module.description,
-          icon: module.icon
-        })
-        
-        if (savedModule) {
-          // 保存任务
-          for (const task of module.tasks) {
-            await taskService.createTask({
-              module_id: savedModule.id,
-              title: task.title,
-              status: task.status,
-              duration: task.duration,
-              content: task.content
-            })
-          }
-        }
+    try {
+      const updatedCourse = {
+        ...course,
+        totalTasks: calculateTotalTasks()
       }
       
-      console.log('课程创建成功:', savedCourse)
-      router.push('/teacher/dashboard')
-    } else {
-      console.error('课程创建失败')
-      alert('课程创建失败，请重试')
+      // 保存课程到数据库
+      const savedCourse = await courseService.createCourse({
+        title: updatedCourse.title,
+        description: updatedCourse.description,
+        totalDuration: updatedCourse.totalDuration,
+        totalTasks: updatedCourse.totalTasks
+      })
+      
+      if (savedCourse) {
+        // 保存模块
+        for (const module of updatedCourse.modules) {
+          const savedModule = await moduleService.createModule({
+            course_id: savedCourse.id,
+            title: module.title,
+            description: module.description,
+            icon: module.icon
+          })
+          
+          if (savedModule) {
+            // 保存任务
+            for (const task of module.tasks) {
+              await taskService.createTask({
+                module_id: savedModule.id,
+                title: task.title,
+                status: task.status,
+                duration: task.duration,
+                content: task.content
+              })
+            }
+          }
+        }
+        
+        console.log('课程创建成功:', savedCourse)
+        setSaveSuccess(true)
+        // 2秒后跳转到仪表盘
+        setTimeout(() => {
+          router.push('/teacher/dashboard')
+        }, 2000)
+      } else {
+        console.error('课程创建失败')
+        alert('课程创建失败，请重试')
+      }
+    } catch (error) {
+      console.error('课程创建错误:', error)
+      alert('创建课程时发生错误，请重试')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -159,12 +181,35 @@ export default function CreateCoursePage() {
               >
                 返回
               </button>
-              <button
-                onClick={handleSaveCourse}
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-              >
-                创建课程
-              </button>
+              {saveSuccess ? (
+                <button
+                  disabled
+                  className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                  </svg>
+                  创建成功
+                </button>
+              ) : (
+                <button
+                  onClick={handleSaveCourse}
+                  disabled={saving}
+                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {saving ? (
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  )}
+                  {saving ? '创建中...' : '创建课程'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -172,7 +217,7 @@ export default function CreateCoursePage() {
 
       {/* 侧边导航 */}
       <div className="flex">
-        <aside className="w-64 bg-white shadow-sm">
+        <aside className="w-64 md:w-56 bg-white shadow-sm hidden md:block">
           <nav className="mt-5 px-2 space-y-1">
             <a
               href="/teacher/dashboard"

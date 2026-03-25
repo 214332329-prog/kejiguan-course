@@ -1,10 +1,23 @@
+/**
+ * 数据库服务模块
+ * 提供课程、模块、任务、提交等数据的CRUD操作
+ * 集成了缓存机制，提高性能
+ */
 import { supabase } from './supabase';
 import { Course, Module, Task, Submission, Attachment } from '@/types';
+import { cache, generateCacheKey } from './cache';
 
 // 课程相关操作
 export const courseService = {
   // 获取所有课程
   async getCourses(): Promise<Course[]> {
+    const cacheKey = generateCacheKey('courses');
+    const cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      return cachedData;
+    }
+    
     const { data, error } = await supabase
       .from('courses')
       .select('*');
@@ -14,11 +27,19 @@ export const courseService = {
       return [];
     }
     
+    cache.set(cacheKey, data);
     return data;
   },
 
   // 获取单个课程
   async getCourse(id: string): Promise<Course | null> {
+    const cacheKey = generateCacheKey('course', id);
+    const cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      return cachedData;
+    }
+    
     const { data, error } = await supabase
       .from('courses')
       .select('*')
@@ -30,6 +51,7 @@ export const courseService = {
       return null;
     }
     
+    cache.set(cacheKey, data);
     return data;
   },
 
@@ -57,6 +79,8 @@ export const courseService = {
       return null;
     }
     
+    // 清除课程列表缓存
+    cache.delete(generateCacheKey('courses'));
     return data;
   },
 
@@ -77,6 +101,9 @@ export const courseService = {
       return null;
     }
     
+    // 清除相关缓存
+    cache.delete(generateCacheKey('courses'));
+    cache.delete(generateCacheKey('course', id));
     return data;
   },
 
@@ -92,6 +119,9 @@ export const courseService = {
       return false;
     }
     
+    // 清除相关缓存
+    cache.delete(generateCacheKey('courses'));
+    cache.delete(generateCacheKey('course', id));
     return true;
   }
 };
@@ -100,6 +130,13 @@ export const courseService = {
 export const moduleService = {
   // 获取课程的所有模块
   async getModulesByCourseId(courseId: string): Promise<Module[]> {
+    const cacheKey = generateCacheKey('modules', courseId);
+    const cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      return cachedData;
+    }
+    
     const { data, error } = await supabase
       .from('modules')
       .select('*')
@@ -110,6 +147,7 @@ export const moduleService = {
       return [];
     }
     
+    cache.set(cacheKey, data);
     return data;
   },
 
@@ -137,6 +175,8 @@ export const moduleService = {
       return null;
     }
     
+    // 清除相关缓存
+    cache.delete(generateCacheKey('modules', module.course_id));
     return data;
   },
 
@@ -157,11 +197,22 @@ export const moduleService = {
       return null;
     }
     
+    // 清除相关缓存
+    if (data.course_id) {
+      cache.delete(generateCacheKey('modules', data.course_id));
+    }
     return data;
   },
 
   // 删除模块
   async deleteModule(id: string): Promise<boolean> {
+    // 先获取模块信息，以清除相关缓存
+    const { data: moduleData } = await supabase
+      .from('modules')
+      .select('course_id')
+      .eq('id', id)
+      .single();
+    
     const { error } = await supabase
       .from('modules')
       .delete()
@@ -172,6 +223,10 @@ export const moduleService = {
       return false;
     }
     
+    // 清除相关缓存
+    if (moduleData && moduleData.course_id) {
+      cache.delete(generateCacheKey('modules', moduleData.course_id));
+    }
     return true;
   }
 };
@@ -180,6 +235,13 @@ export const moduleService = {
 export const taskService = {
   // 获取模块的所有任务
   async getTasksByModuleId(moduleId: string): Promise<Task[]> {
+    const cacheKey = generateCacheKey('tasks', moduleId);
+    const cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      return cachedData;
+    }
+    
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
@@ -190,6 +252,7 @@ export const taskService = {
       return [];
     }
     
+    cache.set(cacheKey, data);
     return data;
   },
 
@@ -218,11 +281,20 @@ export const taskService = {
       return null;
     }
     
+    // 清除相关缓存
+    cache.delete(generateCacheKey('tasks', task.module_id));
     return data;
   },
 
   // 更新任务
   async updateTask(id: string, updates: Partial<Task>): Promise<Task | null> {
+    // 先获取任务信息，以清除相关缓存
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('module_id')
+      .eq('id', id)
+      .single();
+    
     const { data, error } = await supabase
       .from('tasks')
       .update({
@@ -238,11 +310,22 @@ export const taskService = {
       return null;
     }
     
+    // 清除相关缓存
+    if (taskData && taskData.module_id) {
+      cache.delete(generateCacheKey('tasks', taskData.module_id));
+    }
     return data;
   },
 
   // 删除任务
   async deleteTask(id: string): Promise<boolean> {
+    // 先获取任务信息，以清除相关缓存
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('module_id')
+      .eq('id', id)
+      .single();
+    
     const { error } = await supabase
       .from('tasks')
       .delete()
@@ -253,6 +336,10 @@ export const taskService = {
       return false;
     }
     
+    // 清除相关缓存
+    if (taskData && taskData.module_id) {
+      cache.delete(generateCacheKey('tasks', taskData.module_id));
+    }
     return true;
   }
 };

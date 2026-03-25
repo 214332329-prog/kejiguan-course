@@ -1,5 +1,13 @@
+/**
+ * 课程数据模块
+ * 提供课程数据和相关的辅助函数
+ */
 import { Course, Module, Task } from '@/types'
 
+/**
+ * 课程数据
+ * 包含课程的基本信息、模块和任务
+ */
 export const courseData: Course = {
   id: 'course-1',
   title: '科技馆综合实践课程',
@@ -141,7 +149,11 @@ export const courseData: Course = {
   ]
 }
 
-// 计算已完成任务数
+/**
+ * 计算已完成任务数
+ * @param course 课程数据
+ * @returns 已完成任务数量
+ */
 export const getCompletedTasksCount = (course: Course): number => {
   let count = 0
   course.modules.forEach(module => {
@@ -154,7 +166,11 @@ export const getCompletedTasksCount = (course: Course): number => {
   return count
 }
 
-// 计算总任务数
+/**
+ * 计算总任务数
+ * @param course 课程数据
+ * @returns 总任务数量
+ */
 export const getTotalTasksCount = (course: Course): number => {
   let count = 0
   course.modules.forEach(module => {
@@ -163,7 +179,11 @@ export const getTotalTasksCount = (course: Course): number => {
   return count
 }
 
-// 获取当前进行中的任务
+/**
+ * 获取当前进行中的任务
+ * @param course 课程数据
+ * @returns 当前进行中的任务，如果没有则返回null
+ */
 export const getCurrentTask = (course: Course): Task | null => {
   for (const module of course.modules) {
     for (const task of module.tasks) {
@@ -175,7 +195,12 @@ export const getCurrentTask = (course: Course): Task | null => {
   return null
 }
 
-// 根据ID获取任务
+/**
+ * 根据ID获取任务
+ * @param course 课程数据
+ * @param taskId 任务ID
+ * @returns 任务数据，如果未找到则返回null
+ */
 export const getTaskById = (course: Course, taskId: string): Task | null => {
   for (const module of course.modules) {
     const task = module.tasks.find(t => t.id === taskId)
@@ -186,7 +211,12 @@ export const getTaskById = (course: Course, taskId: string): Task | null => {
   return null
 }
 
-// 根据ID获取模块
+/**
+ * 根据ID获取模块
+ * @param course 课程数据
+ * @param moduleId 模块ID
+ * @returns 模块数据，如果未找到则返回null
+ */
 export const getModuleById = (course: Course, moduleId: string): Module | null => {
   return course.modules.find(m => m.id === moduleId) || null
 }

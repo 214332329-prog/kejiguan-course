@@ -33,7 +33,7 @@ export default function LeftSidebar({
   const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
 
   return (
-    <aside className="w-72 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 h-full">
+    <aside className="w-72 md:w-64 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 h-full hidden md:flex">
       {/* 左上：课程地图（60%） */}
       <div className="flex-[60] flex flex-col min-h-0 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-200 shrink-0">

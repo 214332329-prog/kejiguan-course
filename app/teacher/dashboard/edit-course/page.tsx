@@ -206,77 +206,99 @@ export default function EditCoursePage() {
     setActiveTaskId(newTask.id)
   }
 
+  const [saving, setSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
   // 保存课程
   const handleSaveCourse = async () => {
-    // 更新课程基本信息
-    const updatedCourse = await courseService.updateCourse(course.id, {
-      title: course.title,
-      description: course.description,
-      totalDuration: course.totalDuration,
-      totalTasks: course.modules.reduce((total, module) => total + module.tasks.length, 0)
-    })
+    // 验证表单
+    if (!course.title.trim()) {
+      alert('请输入课程标题')
+      return
+    }
+
+    setSaving(true)
     
-    if (updatedCourse) {
-      // 更新模块和任务
-      for (const module of course.modules) {
-        if (module.id) {
-          // 更新现有模块
-          await moduleService.updateModule(module.id, {
-            title: module.title,
-            description: module.description,
-            icon: module.icon
-          })
-          
-          // 更新或创建任务
-          for (const task of module.tasks) {
-            if (task.id) {
-              // 更新现有任务
-              await taskService.updateTask(task.id, {
-                title: task.title,
-                status: task.status,
-                duration: task.duration,
-                content: task.content
-              })
-            } else {
-              // 创建新任务
-              await taskService.createTask({
-                module_id: module.id,
-                title: task.title,
-                status: task.status,
-                duration: task.duration,
-                content: task.content
-              })
-            }
-          }
-        } else {
-          // 创建新模块
-          const savedModule = await moduleService.createModule({
-            course_id: course.id,
-            title: module.title,
-            description: module.description,
-            icon: module.icon
-          })
-          
-          if (savedModule) {
-            // 创建模块的任务
+    try {
+      // 更新课程基本信息
+      const updatedCourse = await courseService.updateCourse(course.id, {
+        title: course.title,
+        description: course.description,
+        totalDuration: course.totalDuration,
+        totalTasks: course.modules.reduce((total, module) => total + module.tasks.length, 0)
+      })
+      
+      if (updatedCourse) {
+        // 更新模块和任务
+        for (const module of course.modules) {
+          if (module.id) {
+            // 更新现有模块
+            await moduleService.updateModule(module.id, {
+              title: module.title,
+              description: module.description,
+              icon: module.icon
+            })
+            
+            // 更新或创建任务
             for (const task of module.tasks) {
-              await taskService.createTask({
-                module_id: savedModule.id,
-                title: task.title,
-                status: task.status,
-                duration: task.duration,
-                content: task.content
-              })
+              if (task.id) {
+                // 更新现有任务
+                await taskService.updateTask(task.id, {
+                  title: task.title,
+                  status: task.status,
+                  duration: task.duration,
+                  content: task.content
+                })
+              } else {
+                // 创建新任务
+                await taskService.createTask({
+                  module_id: module.id,
+                  title: task.title,
+                  status: task.status,
+                  duration: task.duration,
+                  content: task.content
+                })
+              }
+            }
+          } else {
+            // 创建新模块
+            const savedModule = await moduleService.createModule({
+              course_id: course.id,
+              title: module.title,
+              description: module.description,
+              icon: module.icon
+            })
+            
+            if (savedModule) {
+              // 创建模块的任务
+              for (const task of module.tasks) {
+                await taskService.createTask({
+                  module_id: savedModule.id,
+                  title: task.title,
+                  status: task.status,
+                  duration: task.duration,
+                  content: task.content
+                })
+              }
             }
           }
         }
+        
+        console.log('课程保存成功:', updatedCourse)
+        setSaveSuccess(true)
+        // 2秒后跳转到仪表盘
+        setTimeout(() => {
+          router.push('/teacher/dashboard')
+        }, 2000)
+      } else {
+        console.error('课程保存失败')
+        alert('课程保存失败，请重试')
       }
-      
-      console.log('课程保存成功:', updatedCourse)
-      router.push('/teacher/dashboard')
-    } else {
-      console.error('课程保存失败')
-      alert('课程保存失败，请重试')
+    } catch (error) {
+      console.error('课程保存错误:', error)
+      alert('保存课程时发生错误，请重试')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -296,12 +318,36 @@ export default function EditCoursePage() {
               >
                 返回
               </button>
-              <button
-                onClick={handleSaveCourse}
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-              >
-                保存课程
-              </button>
+              {saveSuccess ? (
+                <button
+                  disabled
+                  className="px-4 py-2 bg-green-500 text-white rounded-md flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                  </svg>
+                  保存成功
+                </button>
+              ) : (
+                <button
+                  onClick={handleSaveCourse}
+                  disabled={saving}
+                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {saving ? (
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                  {saving ? '保存中...' : '保存课程'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -309,7 +355,7 @@ export default function EditCoursePage() {
 
       {/* 侧边导航 */}
       <div className="flex">
-        <aside className="w-64 bg-white shadow-sm">
+        <aside className="w-64 md:w-56 bg-white shadow-sm hidden md:block">
           <nav className="mt-5 px-2 space-y-1">
             <a
               href="/teacher/dashboard"
