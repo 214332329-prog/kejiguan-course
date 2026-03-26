@@ -135,12 +135,26 @@ export default function TeacherAIAssistant({ currentPage = '' }: TeacherAIAssist
   }
 
   return (
-    <div className="h-[200px] bg-white border-t border-slate-200 flex flex-col shrink-0">
+    <div className="h-[220px] bg-white border-t border-gray-200 flex flex-col">
       {/* 聊天区域 */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex gap-2 ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`max-w-[80%] px-3 py-2 rounded-lg text-xs ${msg.type === 'ai' ? 'bg-gray-50 border border-gray-200' : 'bg-blue-100 text-blue-800'}`}>
+          <div key={msg.id} className={`flex gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
+            {msg.type === 'ai' && (
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+            )}
+            {msg.type === 'user' && (
+              <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
+            <div className={`max-w-[80%] px-4 py-3 rounded-lg text-sm ${msg.type === 'ai' ? 'bg-gray-50 border border-gray-200 text-gray-700' : 'bg-indigo-100 text-indigo-800'}`}>
               {msg.content}
             </div>
           </div>
@@ -149,12 +163,12 @@ export default function TeacherAIAssistant({ currentPage = '' }: TeacherAIAssist
       </div>
 
       {/* 快捷问题 */}
-      <div className="px-4 py-2 flex gap-2 overflow-x-auto">
+      <div className="px-6 py-3 flex gap-3 overflow-x-auto border-t border-gray-100">
         {quickQuestions.map((question, index) => (
           <button
             key={index}
             onClick={() => handleQuickQuestion(question)}
-            className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs whitespace-nowrap hover:bg-blue-100 transition"
+            className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm whitespace-nowrap hover:bg-blue-100 transition-all transform hover:scale-105 shadow-sm"
           >
             {question}
           </button>
@@ -162,20 +176,20 @@ export default function TeacherAIAssistant({ currentPage = '' }: TeacherAIAssist
       </div>
 
       {/* 输入框 */}
-      <div className="px-4 py-2 flex gap-2">
+      <div className="px-6 py-4 flex gap-3 border-t border-gray-100">
         <input
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           placeholder="输入你的问题..."
-          className="flex-1 px-3 py-2 border-2 border-blue-300 rounded-lg text-sm outline-none focus:border-blue-500"
+          className="flex-1 px-4 py-3 border-2 border-blue-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
         />
         <button
           onClick={handleSendMessage}
-          className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition"
+          className="w-10 h-10 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition-all transform hover:scale-105 shadow-md"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         </button>
